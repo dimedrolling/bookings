@@ -1,0 +1,89 @@
+{{template "base" .}}
+
+{{define "content"}}
+
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 img-thumbnail mx-auto d-block room-image">
+                <img src="/static/images/attic.jpg" class="img-fluid">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h1 class="text-center mt-3"> This is the attic   </h1>
+                <p> Your home away from home, this will be a vacation to remember</p>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col text-center">
+                <a id="check-availability-button" href="#!" class="btn btn-danger">Check availability </a>
+            </div>
+        </div>
+
+
+
+    </div>
+{{end}}
+
+
+{{define "js"}}
+<script>
+    document.getElementById("check-availability-button").addEventListener("click",function (){
+        let html =`
+			<form id="check-availability-form" action="" method="POST" novalidate class="needs-validation search-form ">
+				<div class="form-row">
+					<div class="col">
+						<div class="row" id="reservation-dates-module">
+							<div class="col">
+								<input required disabled class="form-control" type="text" name="start" id="start" placeholder="Arrival">
+							</div>
+							<div class="col">
+								<input required disabled class="form-control" type="text" name="end" id="end" placeholder="Departure">
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+			`
+        attention.custom({
+            msg:html,
+            title:"Choose your dates",
+            willOpen: () =>{
+                const elem = document.getElementById("reservation-dates-module");
+                const rp = new DateRangePicker(elem,{
+                    format: 'yyyy-mm-dd',
+                    showOnFocus:true
+                })
+            },
+            didOpen: ()=>{
+                document.getElementById('start').removeAttribute("disabled")
+                document.getElementById('end').removeAttribute("disabled")
+            },
+            callback: function (result){
+                console.log("called");
+
+                let form = document.getElementById("check-availability-form");
+                let formData = new FormData(form);
+                formData.append("csrf_token","{{.CSRFToken}}");
+
+                fetch('/search-availability-json', {
+                    method: "post",
+                    body: formData,
+                })
+                .then( response => response.json())
+                .then(data =>{
+                    console.log(data);
+                    console.log(data.ok);
+                    console.log(data.data);
+                })
+            }});
+
+
+    })
+</script>
+{{end}}
