@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/dimedrolling/bookings/pkg/config"
-	"github.com/dimedrolling/bookings/pkg/handlers"
+	"github.com/dimedrolling/bookings/internal/config"
+	"github.com/dimedrolling/bookings/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"net/http"

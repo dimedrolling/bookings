@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dimedrolling/bookings/pkg/config"
-	"github.com/dimedrolling/bookings/pkg/models"
-	"github.com/dimedrolling/bookings/pkg/render"
+	"github.com/dimedrolling/bookings/internal/config"
+	"github.com/dimedrolling/bookings/internal/models"
+	"github.com/dimedrolling/bookings/internal/render"
 	"log"
 	"net/http"
 )
