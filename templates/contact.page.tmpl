@@ -12,10 +12,10 @@
 
 
                 <p>
-                    {{if ne (index .StringMap "remote_ip") ""}}
-                        Your remote IP is {{index .StringMap "remote_ip"}}
+                    {{if ne (index .StringMap "host") ""}}
+                        Our server hosting on  IP  {{index .StringMap "host"}}
                     {{else}}
-                        I dont know your address IP. Visit the <a href="/">Home page</a> to set it.
+                        If you want to visit the <a href="/">Home page</a> to set it.
                     {{end }}
                 </p>
             </div>
