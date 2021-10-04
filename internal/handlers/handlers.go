@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/dimedrolling/bookings/internal/config"
 	"github.com/dimedrolling/bookings/internal/forms"
+	"github.com/dimedrolling/bookings/internal/helpers"
 	"github.com/dimedrolling/bookings/internal/models"
 	"github.com/dimedrolling/bookings/internal/render"
-	"log"
 	"net/http"
 )
 
@@ -71,7 +71,7 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
 		return
 	}
 	reservation := models.Reservation{
@@ -136,7 +136,8 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.MarshalIndent(resp, "", "     ")
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -160,7 +161,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
-		log.Println("cannot get item from session ")
+		m.App.ErrorLog.Println("cannot get item from session ")
 
 		m.App.Session.Put(r.Context(), "error", "Cant get reservation from session")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)

@@ -6,10 +6,12 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/dimedrolling/bookings/internal/config"
 	"github.com/dimedrolling/bookings/internal/handlers"
+	"github.com/dimedrolling/bookings/internal/helpers"
 	"github.com/dimedrolling/bookings/internal/models"
 	"github.com/dimedrolling/bookings/internal/render"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -17,6 +19,8 @@ const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infolog *log.Logger
+var errlog *log.Logger
 
 func main() {
 	err := run()
@@ -42,6 +46,12 @@ func run() error {
 	//change this to true while in production
 	app.InProduction = false
 
+	infolog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infolog
+
+	errlog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errlog
+
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -60,8 +70,9 @@ func run() error {
 	app.UseCache = false
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
-
 	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
+
 	//http.HandleFunc("/", handlers.Repo.Home)
 	//http.HandleFunc("/about", handlers.Repo.About)
 	return nil

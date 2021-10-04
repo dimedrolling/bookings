@@ -5,6 +5,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/dimedrolling/bookings/internal/config"
 	"github.com/dimedrolling/bookings/internal/models"
+	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -19,6 +20,12 @@ func TestMain(m *testing.M) {
 	gob.Register(models.Reservation{})
 	//change this to true while in production
 	testApp.InProduction = false
+
+	infolog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	testApp.InfoLog = infolog
+
+	errlog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	testApp.ErrorLog = errlog
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
