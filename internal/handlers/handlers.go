@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dimedrolling/bookings/internal/config"
+	"github.com/dimedrolling/bookings/internal/driver"
 	"github.com/dimedrolling/bookings/internal/forms"
 	"github.com/dimedrolling/bookings/internal/helpers"
 	"github.com/dimedrolling/bookings/internal/models"
 	"github.com/dimedrolling/bookings/internal/render"
+	"github.com/dimedrolling/bookings/internal/repository"
+	"github.com/dimedrolling/bookings/internal/repository/dbrepo"
 	"net/http"
 )
 
@@ -17,12 +20,14 @@ var Repo *Repository
 //Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
 //NewRepo creates a repos
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -32,6 +37,7 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
+
 	//defines remote address and passing it in session
 	remoteIP := r.RemoteAddr
 	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)

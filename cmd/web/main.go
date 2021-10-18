@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/alexedwards/scs/v2"
 	"github.com/dimedrolling/bookings/internal/config"
+	"github.com/dimedrolling/bookings/internal/driver"
 	"github.com/dimedrolling/bookings/internal/handlers"
 	"github.com/dimedrolling/bookings/internal/helpers"
 	"github.com/dimedrolling/bookings/internal/models"
@@ -23,11 +24,11 @@ var infolog *log.Logger
 var errlog *log.Logger
 
 func main() {
-	err := run()
+	db, err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	defer db.SQL.Close()
 	fmt.Println(fmt.Sprintf("Starting app on port %s", portNumber))
 	//_ = http.ListenAndServe(portNumber, nil)
 
@@ -40,9 +41,10 @@ func main() {
 	log.Fatal(err)
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	//what im going to put in session
 	gob.Register(models.Reservation{})
+
 	//change this to true while in production
 	app.InProduction = false
 
@@ -60,20 +62,28 @@ func run() error {
 
 	app.Session = session
 
+	//connect to database
+	log.Println("Connecting to database")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=qwe")
+	if err != nil {
+		log.Fatal("Cannot connect to database! Dying...")
+	}
+
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("can not create template cache")
-		return err
+		return nil, err
 	}
 
 	app.TemplateCache = tc
 	app.UseCache = false
-	repo := handlers.NewRepo(&app)
+
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 	render.NewTemplates(&app)
 	helpers.NewHelpers(&app)
 
 	//http.HandleFunc("/", handlers.Repo.Home)
 	//http.HandleFunc("/about", handlers.Repo.About)
-	return nil
+	return db, nil
 }
